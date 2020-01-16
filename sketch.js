@@ -9,10 +9,11 @@ var play,play_img;
 var PLAY = 1;
 var END = 0;
 var gameState = PLAY;
+var die,die_img;
 
 
 function preload(){
-  bg_img = loadImage("images/back ground.jpg");
+  bg_img = loadImage("images/background.jpg");
   turtle_img = loadAnimation("images/t1.png","images/sprite_t50.png");
   bag_img = loadImage("images/plastic_bag.png");
   poster1_img = loadImage("images/poster1.jpeg");
@@ -20,7 +21,8 @@ function preload(){
   poster3_img = loadImage("images/poster3.jpg");
   cocacola_img = loadImage("images/coca cola.png");
   play_img = loadImage("images/Play_button.jpg");
-  
+  //die_img = loadImage("images/die10.png")
+ 
 }
 
 function setup(){
@@ -32,13 +34,14 @@ function setup(){
 
   turtle = createSprite(200,400,50,50);
   turtle.addAnimation("img",turtle_img);
+  //turtle.addImage("img",die_img)
+  turtle.setCollider("circle",0,0,5)
   turtle.scale = 0.5;
   bg.scale = 1.0;
   bag_img.scale = 0.5;
   play = createSprite(1000,800,50,50);
   play.addImage("img",play_img);
   play.scale=0.5;
- 
   bagGroup =  new Group();
   cocacolaGroup = new Group();
   textSize(20);
@@ -51,7 +54,7 @@ fill("black");
 function draw(){
 
   background("white")
-
+//here I gave the intro message display before the game starts
   if(World.frameCount<200){
     
     text("Welcome to Turtle Saver Game!", 200,200);
@@ -62,13 +65,13 @@ function draw(){
     
     
      } 
+    
+     // here the game starts
 
   if(gameState===PLAY && World.frameCount>200){
   textSize(20);
   fill("Red");
   bg.velocityX=-5;
-  
-
 
 if(keyDown(UP_ARROW)){
   move(0,-5);
@@ -89,10 +92,6 @@ if(keyDown(RIGHT_ARROW)){
   move(5,0)
   
 }
-
-if(turtle.x>displayWidth){
-  turtle.x = 200;
-}
   if(bg.x<100){
     bg.x = bg.width/2;
   }
@@ -104,15 +103,24 @@ spawnMessage2();
 spawnMessage3();
 spawncocacola();
 
+// student tried to create the collision algorithm but I guess baggroup is going wrong 
 
+
+if(turtle.y - bagGroup.yEACH<turtle.height/2+bagGroup.height/2
+  && bagGroup.yEach - turtle.y< turtle.height/2+ bagGroup.height/2){
+  gameState = END;
+
+  }
+else if (gameState===END){
+bagGroup.velocityYEach(0)
+score = 0;
+//turtle.changeImage("img",die_img)
+}
 
   drawSprites();
   text("SCORE-"+score,50,50);
   }
 }
-
-
-
 
 function move(x,y){
   turtle.x = turtle.x+x;
@@ -125,11 +133,15 @@ function spawnbag(){
   var bag = createSprite(rand,0,20,20);
   bag.addImage("img",bag_img);
   bag.velocityY = 5;
-  bag.scale = 0.1;
+  bag.scale = 0.25;
+  bag.setCollider("circle",0,0,5)
   bagGroup.add(bag);
-  
+ 
   }
+  
 }
+  
+
 
 function spawnMessage1(){
   if(World.frameCount%500===0){
