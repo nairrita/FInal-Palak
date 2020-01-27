@@ -1,3 +1,4 @@
+// declaring the variables
 var bg, bg_img, turtle,turtle_img;
 var bag_img,bagGroup,bag;
 var poster1_img;
@@ -10,8 +11,12 @@ var PLAY = 1;
 var END = 0;
 var gameState = PLAY;
 var die,die_img;
+var gameState = "play"
+var spawnMessage1Group,spawnMessage2Group;
+var intro;
+var diesound;
 
-
+//loading all the images
 function preload(){
   bg_img = loadImage("images/background.jpg");
   turtle_img = loadAnimation("images/t1.png","images/sprite_t50.png");
@@ -21,20 +26,23 @@ function preload(){
   poster3_img = loadImage("images/poster3.jpg");
   cocacola_img = loadImage("images/coca cola.png");
   play_img = loadImage("images/Play_button.jpg");
-  //die_img = loadImage("images/die10.png")
+  die_img = loadImage("images/die1.jpg")
+  diesound = loadSound("sound.mp3")
+  
  
 }
 
 function setup(){
   var canvas = createCanvas(displayWidth,displayHeight)
   
+  //creating the sprites and adding the images
+
   bg =  createSprite(600,500,1200,1000);
   bg.addImage("img",bg_img);
   bg.x = bg.width/2;
 
   turtle = createSprite(200,400,50,50);
   turtle.addAnimation("img",turtle_img);
-  //turtle.addImage("img",die_img)
   turtle.setCollider("circle",0,0,5)
   turtle.scale = 0.5;
   bg.scale = 1.0;
@@ -42,35 +50,42 @@ function setup(){
   play = createSprite(1000,800,50,50);
   play.addImage("img",play_img);
   play.scale=0.5;
+  play.visible = false;
   bagGroup =  new Group();
   cocacolaGroup = new Group();
+  spawnMessage1Group = new Group();
+  spawnMessage2Group = new Group();
   textSize(20);
-textFont("Georgia");
-textStyle(BOLD);
-fill("black");
+  textFont("Georgia");
+  textStyle(BOLD);
+  fill("black");
   
   }
 
 function draw(){
 
   background("white")
-//here I gave the intro message display before the game starts
-  if(World.frameCount<200){
-    
+
+ 
+//Intro message of the game
+
+  if(World.frameCount<200 ){
+    bg.visible = false;
+    turtle.visible = false;
     text("Welcome to Turtle Saver Game!", 200,200);
-    text("control Turtle with your arrow keys",200,300);
+   text("control Turtle with your arrow keys",200,300);
     text("help the turtle from plastic trash ", 200,400);
     text("This game is to make the humanity aware that how plastic pollution in Ocean/SEA  is causing 1000 turtles to die each year !",50,500);
     
     
     
-     } 
+    } 
     
      // here the game starts
 
-  if(gameState===PLAY && World.frameCount>200){
-  textSize(20);
-  fill("Red");
+  if(gameState==="play" && World.frameCount>200 ){
+  bg.visible = true;
+  turtle.visible = true;
   bg.velocityX=-5;
 
 if(keyDown(UP_ARROW)){
@@ -89,43 +104,79 @@ if(keyDown(LEFT_ARROW)){
 }
 
 if(keyDown(RIGHT_ARROW)){
-  move(5,0)
+  move(7,0)
   
 }
   if(bg.x<100){
     bg.x = bg.width/2;
   }
-score=Math.round(World.frameCount/10)
+score=  Math.round(World.frameCount/80)
 
 spawnbag();
-spawnMessage1();
-spawnMessage2();
-spawnMessage3();
+
 spawncocacola();
 
-// student tried to create the collision algorithm but I guess baggroup is going wrong 
+if(turtle.x>displayWidth){
+  turtle.x = 200;
+}
 
 
-if(turtle.y - bagGroup.yEACH<turtle.height/2+bagGroup.height/2
-  && bagGroup.yEach - turtle.y< turtle.height/2+ bagGroup.height/2){
-  gameState = END;
+if(turtle.isTouching(bagGroup)){ 
+
+  diesound.play();
+gameState = "end"
+  
+    console.log("working")
+}
+  } 
+
+  else{
+    
+    if(gameState=== "end"){
+
+      turtle.addImage("img", die_img)
+      turtle.scale=1.75
+      bagGroup.setVelocityYEach(0);
+      bg.velocityX = 0;
+      score=0;
+      play.visible = true;
+      spawnMessage1();
+      //spawnMessage2();
+      spawnMessage3();
+
+    }
+
+    }
+  
+    
+  // activating the play button
+
+  if(mousePressedOver(play)){
+    play.visible = false;
+    gameState = "play"
+    bagGroup.destroyEach(0);
+    turtle.addAnimation("img",turtle_img)
+    turtle.scale = 0.5
+    score = 0;
+    spawnMessage1Group.destroyEach()
+    spawnMessage2Group.destroyEach()
 
   }
-else if (gameState===END){
-bagGroup.velocityYEach(0)
-score = 0;
-//turtle.changeImage("img",die_img)
-}
+
 
   drawSprites();
   text("SCORE-"+score,50,50);
   }
-}
+
+//moving the turtle
 
 function move(x,y){
   turtle.x = turtle.x+x;
   turtle.y = turtle.y+y;
 }
+
+
+// spawning the plastic trashes
 
 function spawnbag(){
   if(World.frameCount%100===0){
@@ -134,48 +185,40 @@ function spawnbag(){
   bag.addImage("img",bag_img);
   bag.velocityY = 5;
   bag.scale = 0.25;
-  bag.setCollider("circle",0,0,5)
   bagGroup.add(bag);
  
   }
   
 }
   
-
+//spawning the messages
 
 function spawnMessage1(){
-  if(World.frameCount%500===0){
+  if(World.frameCount%200===0){
   var message1 = createSprite(displayWidth,100,50,50);
   message1.addImage("img",poster1_img);
-  message1.velocityX = -1;
-  message1.scale = 0.5;
+  message1.velocityX = -4;
+  message1.scale = 0.75;
   message1.lifetime = 400;
+  spawnMessage1Group.add(message1)
   
   }
 }
-function spawnMessage2(){
-  if(World.frameCount%500===0){
-  var message2 = createSprite(displayWidth,200,50,50);
-  message2.addImage("img",poster2_img);
-  message2.velocityX = -1;
-  message2.scale = 0.5;
-  message2.lifetime = 400;
-  
-  }
-}
+
 function spawnMessage3(){
-  if(World.frameCount%500===0){
+  if(World.frameCount%200===0){
   var message3 = createSprite(displayWidth,350,50,50);
   message3.addImage("img",poster3_img);
-  message3.velocityX = -1;
-  message3.scale = 0.3;
+  message3.velocityX = -4;
+  message3.scale = 0.75;
   message3.lifetime = 400;
+  spawnMessage2Group.add(message3)
   
   }
 }
 
 function spawncocacola(){
-  if(World.frameCount%100===0){
+  if(World.frameCount%200===0){
     var rand =  Math.round(random(600,1000))
   var cocacola = createSprite(0,rand,20,20);
   cocacola.addImage("img",cocacola_img);
@@ -185,3 +228,17 @@ function spawncocacola(){
   
   }
 }
+
+// creating the collision detection algorithm
+function isTouching(){
+  if(turtle.y-bag.y<turtle.height/2+bag.height/2
+    && bag.y-turtle.y<turtle.height/2+bag.height/2
+    && bag.x-turtle.x<turtle.width/2+ bag.width/2
+    && turtle.x - bag.x<turtle.width/2 + bag.width/2){
+   return true;
+  }
+  else {
+    return false;
+  }
+  }
+
